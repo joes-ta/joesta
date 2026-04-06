@@ -1,0 +1,41 @@
+// Pin definitions
+const int proximityPin = 2;  // start trigger
+const int ultrasonicPin = 3;  // stop trigger
+
+// Variables
+unsigned long startTime = 0;
+unsigned long endTime = 0;
+bool timing = false;
+
+void setup() {
+  pinMode(proximityPin, INPUT);
+  pinMode(ultrasonicPin, INPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  int startState = digitalRead(proximityPin);
+  int stopState = digitalRead(ultrasonicPin);
+
+  // START timer
+  if (startState == HIGH && !timing) {
+    startTime = millis();
+    timing = true;
+    Serial.println("Timer started");
+    delay(200); // debounce
+  }
+
+  // STOP timer
+  if (timing && stopState == HIGH) {
+    endTime = millis();
+    timing = false;
+
+    unsigned long elapsed = endTime - startTime;
+
+    Serial.print("Timer stopped. Elapsed time (ms): ");
+    Serial.println(elapsed);
+    Serial.println("-----");
+    delay(500); // prevent immediate retrigger
+  }
+}
